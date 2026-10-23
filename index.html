@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ประโยคมหาสนุก</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap');
+
+:root {
+  --cyan: #72efff;
+  --pink: #ff8bdd;
+  --ink: #172342;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body {
+  margin: 0;
+  color: white;
+  font-family: "TH Sarabun New", "Sarabun", sans-serif;
+  background: #090b27;
+}
+button, input { font: inherit; }
+button {
+  min-height: 48px;
+  border: 0;
+  border-radius: 16px;
+  padding: 10px 22px;
+  font-size: clamp(22px, 2vw, 30px);
+  font-weight: 700;
+  color: #10213b;
+  background: linear-gradient(135deg, #c2fcff, #73dcff);
+  box-shadow: 0 5px 0 #267c9b, 0 10px 22px #0004;
+  transition: transform .18s, box-shadow .18s;
+  touch-action: manipulation;
+}
+button:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 0 #267c9b, 0 0 25px #72efff99;
+}
+button:active:not(:disabled) { transform: translateY(2px); }
+button:disabled { opacity: .45; box-shadow: none; }
+button:focus-visible, input:focus-visible {
+  outline: 3px solid #ffdc72;
+  outline-offset: 5px;
+}
+.secondary {
+  color: white;
+  background: linear-gradient(135deg, #7557bd, #43337e);
+  box-shadow: 0 5px 0 #29204e;
+}
+.pink {
+  background: linear-gradient(135deg, #ffd0ed, #ff91ce);
+  box-shadow: 0 5px 0 #af438b;
+}
+.background {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background-image:
+    linear-gradient(120deg, #070b2399, #29144366, #03162799),
+    url("https://images-assets.nasa.gov/image/GSFC_20171208_Archive_e001955/GSFC_20171208_Archive_e001955~orig.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+.background::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 20% 60%, #7738b055, transparent 55%),
+    radial-gradient(ellipse at 80% 25%, #2383c844, transparent 50%);
+}
+#stars {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  overflow: hidden;
+}
+.star {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  background: white;
+  border-radius: 50%;
+  box-shadow: 0 0 8px white;
+  animation: twinkle 3s ease-in-out infinite alternate;
+}
+@keyframes twinkle {
+  from { opacity: .2; transform: translateY(0); }
+  to { opacity: 1; transform: translateY(-9px); }
+}
+.screen { min-height: 100vh; min-height: 100dvh; }
+#home { position: relative; }
+#start {
+  position: absolute;
+  bottom: max(10%, env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 15px 54px;
+  border-radius: 999px;
+  white-space: nowrap;
+  font-size: clamp(32px, 4vw, 46px);
+  background: linear-gradient(135deg, #ffedab, #ffa0d6);
+}
+#start:hover { transform: translateX(-50%) scale(1.04); }
+#game {
+  width: min(1400px, 100%);
+  margin: auto;
+  padding: clamp(12px, 2vw, 28px);
+}
+.top {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  background: #0b103cdd;
+  backdrop-filter: blur(12px);
+  padding: 12px 18px;
+  border: 1px solid #ffffff33;
+  border-radius: 20px;
+}
+#counter { font-size: clamp(28px, 3vw, 40px); font-weight: 700; }
+.top-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.progress {
+  height: 10px;
+  background: #ffffff26;
+  border-radius: 20px;
+  margin: 16px 0;
+  overflow: hidden;
+}
+#progress {
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg, #7cf4ff, #ff91d3);
+  transition: width .4s;
+}
+#question { animation: enter .35s ease; }
+@keyframes enter {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.hints { display: grid; gap: 14px; }
+.hint {
+  width: 100%;
+  border-radius: 22px;
+  overflow: hidden;
+  border: 2px solid #ffffff99;
+  box-shadow: 0 12px 30px #0004;
+  background: #ffffff;
+  color: var(--ink);
+}
+.hint-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 20px;
+  background: linear-gradient(90deg, #e5faff, #f8eaff);
+}
+.hint-head h2 {
+  margin: 0;
+  font-size: clamp(28px, 2.6vw, 38px);
+}
+.badge { font-size: clamp(20px, 1.8vw, 26px); color: #664684; }
+.hint-body {
+  padding: 18px 24px;
+  min-height: 100px;
+  display: flex;
+  align-items: center;
+  font-size: clamp(30px, 3.2vw, 48px);
+  font-weight: 700;
+  line-height: 1.25;
+}
+.locked { color: #777f99; font-weight: 400; }
+.answer-card {
+  margin-top: 18px;
+  border: 2px solid #efb7ff;
+  border-radius: 24px;
+  padding: 18px 24px;
+  text-align: center;
+  background: linear-gradient(130deg, #28235fee, #3d2057ee);
+  box-shadow: 0 0 30px #df8cff22;
+}
+.answer-card h2 { margin: 0; font-size: clamp(28px, 3vw, 40px); }
+#answer {
+  min-height: 80px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: clamp(32px, 3.7vw, 56px);
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+  color: #fff0b1;
+}
+.answer-card.open { animation: reveal .4s ease; }
+@keyframes reveal {
+  from { opacity: .5; transform: scale(.97); }
+  to { opacity: 1; transform: scale(1); }
+}
+#status {
+  text-align: center;
+  font-size: clamp(24px, 2.2vw, 32px);
+  margin: 16px 0;
+  color: #daf8ff;
+}
+.admin-panel {
+  padding: 16px;
+  border: 1px solid #baf2ff66;
+  border-radius: 22px;
+  background: #0d1736e8;
+}
+.admin-heading {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+  font-size: 28px;
+}
+.controls {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+#result {
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+.result-card {
+  text-align: center;
+  padding: 36px;
+  width: min(680px, 100%);
+  border-radius: 30px;
+  background: #11183bea;
+  border: 2px solid #bfefff;
+}
+.result-card h1 { font-size: 46px; margin: 0 0 18px; }
+.result-card p { font-size: 32px; }
+dialog {
+  width: min(440px, calc(100% - 32px));
+  border: 2px solid #baf2ff;
+  border-radius: 24px;
+  background: #172044;
+  color: white;
+  padding: 24px;
+}
+dialog::backdrop { background: #040817cc; }
+dialog h2 { font-size: 34px; margin: 0 0 12px; }
+dialog label, #pinError { font-size: 24px; }
+dialog input {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  margin: 12px 0;
+  border-radius: 12px;
+  border: 2px solid #baf2ff;
+  font-size: 30px;
+}
+.dialog-actions { display: flex; justify-content: flex-end; gap: 12px; }
+#pinError { color: #ffb9cb; min-height: 28px; margin: 0 0 10px; }
+#wand {
+  position: fixed;
+  width: 40px;
+  height: 40px;
+  pointer-events: none;
+  z-index: 100;
+  display: none;
+  filter: drop-shadow(0 0 6px #bdffff);
+}
+.diamond {
+  position: fixed;
+  pointer-events: none;
+  z-index: 99;
+  width: 8px;
+  height: 8px;
+  background: #c1fbff;
+  box-shadow: 0 0 12px #8be8ff;
+  animation: trail .65s ease-out forwards;
+}
+@keyframes trail {
+  from { opacity: 1; transform: rotate(45deg) scale(1); }
+  to { opacity: 0; transform: translateY(25px) rotate(135deg) scale(0); }
+}
+@media (hover: hover) and (pointer: fine) {
+  body, button, input { cursor: none; }
+}
+@media (max-width: 600px) {
+  .hint-head, .hint-body { padding: 12px 16px; }
+  .hint-body { min-height: 100px; font-size: 30px; }
+  .top { position: static; }
+  .top-actions button { font-size: 22px; padding: 8px 14px; }
+  .controls button { flex: 1 1 160px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+</style>
+</head>
+<body>
+<div class="background" aria-hidden="true"></div>
+<div id="stars" aria-hidden="true"></div>
+
+<svg id="wand" viewBox="0 0 48 48" aria-hidden="true">
+  <path d="M12 38L32 18" stroke="#fff" stroke-width="7" stroke-linecap="round"/>
+  <path d="M12 38L32 18" stroke="#987bff" stroke-width="4" stroke-linecap="round"/>
+  <path d="M34 3L37 11L46 14L38 18L36 27L31 20L23 18L29 12Z"
+        fill="#fff1a1" stroke="#fff" stroke-width="1.5"/>
+</svg>
+
+<section id="home" class="screen">
+  <button id="start" type="button">เริ่มเกม</button>
+</section>
+
+<main id="game" class="screen" hidden>
+  <header class="top">
+    <div id="counter">ข้อที่ 1 / 10</div>
+    <div class="top-actions">
+      <button id="musicButton" class="secondary" type="button"
+              aria-pressed="true">ปิดเสียง</button>
+      <button id="adminButton" class="pink" type="button">เข้าสู่โหมด Admin</button>
+      <button id="exitButton" class="secondary" type="button">ออกจากเกม</button>
+    </div>
+  </header>
+
+  <div class="progress" role="progressbar" aria-label="ความคืบหน้า"
+       aria-valuemin="0" aria-valuemax="10" aria-valuenow="0" id="progressWrap">
+    <div id="progress"></div>
+  </div>
+
+  <section id="question">
+    <div class="hints">
+      <article class="hint">
+        <div class="hint-head">
+          <h2>คำใบ้ที่ 1</h2><span class="badge">เปิดแล้ว</span>
+        </div>
+        <div id="hint1" class="hint-body"></div>
+      </article>
+      <article class="hint">
+        <div class="hint-head">
+          <h2>คำใบ้ที่ 2</h2><span id="badge2" class="badge">ปิดอยู่</span>
+        </div>
+        <div id="hint2" class="hint-body locked">รอ Admin เปิดคำใบ้</div>
+      </article>
+      <article class="hint">
+        <div class="hint-head">
+          <h2>คำใบ้ที่ 3</h2><span id="badge3" class="badge">ปิดอยู่</span>
+        </div>
+        <div id="hint3" class="hint-body locked">รอ Admin เปิดคำใบ้</div>
+      </article>
+    </div>
+
+    <article id="answerCard" class="answer-card">
+      <h2>การ์ดเฉลยคำตอบ</h2>
+      <div id="answer">ปิดอยู่ — Admin เท่านั้นที่เปิดได้</div>
+    </article>
+  </section>
+
+  <p id="status" role="status">ทายคำตอบด้วยการพูด แล้วรอ Admin ดำเนินการ</p>
+
+  <section id="adminPanel" class="admin-panel" hidden>
+    <div class="admin-heading">
+      <strong>แผงควบคุม Admin</strong>
+      <button id="lockButton" class="secondary" type="button">ล็อกแผงควบคุม</button>
+    </div>
+    <div class="controls">
+      <button id="open2" type="button">เปิดคำใบ้ที่ 2</button>
+      <button id="open3" type="button">เปิดคำใบ้ที่ 3</button>
+      <button id="reveal" class="pink" type="button">เปิดการ์ดเฉลย</button>
+      <button id="next" type="button">คำใบ้ถัดไป →</button>
+    </div>
+  </section>
+</main>
+
+<section id="result" class="screen" hidden>
+  <div class="result-card">
+    <h1>จบกิจกรรมแล้ว!</h1>
+    <p>ทายคำศัพท์ครบทั้ง 10 ข้อ</p>
+    <p>โหมดนี้ไม่บันทึกคะแนน เนื่องจากตอบด้วยการพูด</p>
+    <div class="controls">
+      <button id="restart" type="button">เล่นอีกครั้ง</button>
+      <button id="backHome" class="pink" type="button">กลับหน้าหลัก</button>
+    </div>
+  </div>
+</section>
+
+<dialog id="login">
+  <form id="loginForm">
+    <h2>เข้าสู่โหมด Admin</h2>
+    <label for="pin">รหัสผู้ควบคุม</label>
+    <input id="pin" type="password" inputmode="numeric" autocomplete="off" required>
+    <p id="pinError" role="alert"></p>
+    <div class="dialog-actions">
+      <button id="cancelLogin" class="secondary" type="button">ยกเลิก</button>
+      <button type="submit">ปลดล็อก</button>
+    </div>
+  </form>
+</dialog>
+
+<script>
+"use strict";
+
+// 1. ตั้งค่ารหัส Admin สำหรับการใช้งานบนเครื่องฉายหน้าจอเดียว
+// รหัสฝั่งเบราว์เซอร์ไม่ใช่ระบบรักษาความปลอดภัยที่แท้จริง
+const ADMIN_PIN = "2468";
+
+const QUESTIONS = [
+  {
+    clues: [
+      "เป็นเครื่องมือสำคัญของนักภูมิศาสตร์",
+      "แสดงตำแหน่งและลักษณะต่าง ๆ ของพื้นที่โดยใช้สัญลักษณ์",
+      "นักเรียนใช้ในการค้นหาจังหวัด ถนน และสถานที่ต่าง ๆ"
+    ],
+    answer: "แผนที่"
+  },
+  {
+    clues: [
+      "เป็นวัตถุที่โคจรรอบโลกหรือวัตถุท้องฟ้าอื่น",
+      "อาจใช้สำรวจสภาพอากาศและถ่ายภาพพื้นผิวโลก",
+      "ไทยโชตเป็นตัวอย่างของฉัน"
+    ],
+    answer: "ดาวเทียม"
+  },
+  {
+    clues: [
+      "เป็นเทคโนโลยีที่ใช้จัดการข้อมูลเกี่ยวกับตำแหน่งบนโลก",
+      "สามารถนำข้อมูลถนน แม่น้ำ และพื้นที่ป่าไม้มาวิเคราะห์ร่วมกัน",
+      "ชื่อภาษาไทย คือ ระบบสารสนเทศภูมิศาสตร์"
+    ],
+    answer: "GIS (Geographic Information System)"
+  },
+  {
+    clues: [
+      "เป็นอุปกรณ์ที่ใช้ในการสำรวจและเดินทาง",
+      "ทำงานตามสนามแม่เหล็กโลก",
+      "ใช้บอกทิศเหนือ ใต้ ตะวันออก และตะวันตก"
+    ],
+    answer: "เข็มทิศ (Compass)"
+  },
+  {
+    clues: [
+      "เป็นระบบนิเวศที่พบในบริเวณชายฝั่งเขตร้อนและกึ่งร้อน",
+      "ต้นไม้ในพื้นที่ทนต่อสภาพน้ำเค็มหรือน้ำกร่อยได้",
+      "มักมีต้นโกงกางและรากค้ำจุนที่ช่วยดักตะกอน"
+    ],
+    answer: "ป่าชายเลน (Mangrove Forest)"
+  },
+  {
+    clues: [
+      "เป็นเทคโนโลยีที่เกี่ยวข้องกับดาวเทียม",
+      "ช่วยระบุตำแหน่งและใช้ในการนำทาง",
+      "โทรศัพท์มือถือสามารถใช้ช่วยนำทางไปยังจุดหมาย"
+    ],
+    answer: "GPS (Global Positioning System)"
+  },
+  {
+    clues: [
+      "เป็นลักษณะภูมิประเทศที่พบได้ในทะเลและทะเลสาบ",
+      "มีน้ำล้อมรอบทุกด้าน",
+      "ภูเก็ตและสมุยเป็นตัวอย่างของฉัน"
+    ],
+    answer: "เกาะ (Island)"
+  },
+  {
+    clues: [
+      "เป็นภัยธรรมชาติที่เกิดขึ้นอย่างฉับพลัน",
+      "มักเกิดจากการเลื่อนตัวของรอยเลื่อนในเปลือกโลก",
+      "เมื่อเกิดขึ้น พื้นดินและอาคารอาจสั่นสะเทือน"
+    ],
+    answer: "แผ่นดินไหว (Earthquake)"
+  },
+  {
+    clues: [
+      "เป็นเส้นสมมติที่ใช้ในการศึกษาตำแหน่งบนโลก",
+      "แบ่งโลกออกเป็นซีกโลกเหนือและซีกโลกใต้",
+      "อยู่ที่ละติจูด 0 องศา"
+    ],
+    answer: "เส้นศูนย์สูตร (Equator)"
+  },
+  {
+    clues: [
+      "เป็นภัยธรรมชาติที่เกี่ยวข้องกับการเคลื่อนที่ของน้ำทะเล",
+      "อาจเกิดจากแผ่นดินไหวใต้ทะเลหรือดินถล่มใต้น้ำ",
+      "เป็นคลื่นทะเลขนาดใหญ่ที่อาจสร้างความเสียหายรุนแรงบริเวณชายฝั่ง"
+    ],
+    answer: "สึนามิ (Tsunami)"
+  }
+];
+
+const $ = id => document.getElementById(id);
+let index = 0;
+let active = false;
+let admin = false;
+let opened = [true, false, false];
+let revealed = false;
+
+// 2. ระบบเสียง: สังเคราะห์เพลงจังหวะสนุก ไม่ต้องโหลดไฟล์เพลง
+const Sound = (() => {
+  let ctx, master, musicBus, task;
+  let enabled = true;
+  let running = false;
+  let step = 0;
+  let nextTime = 0;
+  const sources = new Set();
+  const notes = [72, 76, 79, 76, 74, 77, 81, 77,
+                 76, 79, 84, 79, 74, 77, 79, 71];
+  const bass = [48, 50, 45, 43];
+  const interval = 60 / 132 / 2;
+
+  function init() {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return false;
+    try {
+      if (!ctx) {
+        ctx = new AC();
+        master = ctx.createGain();
+        master.gain.value = enabled ? .55 : 0;
+        const compressor = ctx.createDynamicsCompressor();
+        master.connect(compressor);
+        compressor.connect(ctx.destination);
+        musicBus = ctx.createGain();
+        musicBus.gain.value = .55;
+        musicBus.connect(master);
+      }
+      if (ctx.state === "suspended") ctx.resume().catch(() => {});
+      return true;
+    } catch (_) { return false; }
+  }
+
+  function tone(midi, time, duration, volume, type = "triangle", bus = musicBus) {
+    if (!ctx) return;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = type;
+    osc.frequency.value = 440 * Math.pow(2, (midi - 69) / 12);
+    gain.gain.setValueAtTime(.0001, time);
+    gain.gain.exponentialRampToValueAtTime(volume, time + .012);
+    gain.gain.exponentialRampToValueAtTime(.0001, time + duration);
+    osc.connect(gain);
+    gain.connect(bus);
+    sources.add(osc);
+    osc.onended = () => {
+      sources.delete(osc);
+      osc.disconnect();
+      gain.disconnect();
+    };
+    osc.start(time);
+    osc.stop(time + duration + .02);
+  }
+
+  function kick(time) {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.frequency.setValueAtTime(130, time);
+    osc.frequency.exponentialRampToValueAtTime(42, time + .15);
+    gain.gain.setValueAtTime(.12, time);
+    gain.gain.exponentialRampToValueAtTime(.0001, time + .18);
+    osc.connect(gain);
+    gain.connect(musicBus);
+    sources.add(osc);
+    osc.onended = () => {
+      sources.delete(osc);
+      osc.disconnect();
+      gain.disconnect();
+    };
+    osc.start(time);
+    osc.stop(time + .2);
+  }
+
+  function schedule() {
+    if (!running || !ctx || ctx.state !== "running") return;
+    if (nextTime < ctx.currentTime) nextTime = ctx.currentTime + .04;
+    while (nextTime < ctx.currentTime + .15) {
+      tone(notes[step % 16], nextTime, interval * .8, .075);
+      if (step % 2 === 0) {
+        tone(bass[Math.floor(step / 8) % 4], nextTime, interval * 1.6, .11);
+        kick(nextTime);
+      }
+      if (step % 4 === 2) tone(91, nextTime, .05, .025, "square");
+      nextTime += interval;
+      step++;
+    }
+  }
+
+  function stop() {
+    running = false;
+    clearInterval(task);
+    for (const source of Array.from(sources)) {
+      try { source.stop(); } catch (_) {}
+    }
+  }
+
+  function start() {
+    stop();
+    if (!init()) return false;
+    running = true;
+    step = 0;
+    nextTime = ctx.currentTime + .08;
+    task = setInterval(schedule, 25);
+    schedule();
+    return true;
+  }
+
+  function chime() {
+    if (!init()) return;
+    [76, 79, 84].forEach((note, i) => {
+      tone(note, ctx.currentTime + i * .09, .3, .14, "sine", master);
+    });
+  }
+
+  function toggle() {
+    enabled = !enabled;
+    if (init()) {
+      master.gain.setTargetAtTime(enabled ? .55 : 0, ctx.currentTime, .03);
+    }
+    return enabled;
+  }
+
+  return { start, stop, chime, toggle };
+})();
+
+// 3. ทุกการเปิดคำใบ้และเฉลยต้องมาจากการกดของ Admin
+function showScreen(name) {
+  ["home", "game", "result"].forEach(id => { $(id).hidden = id !== name; });
+}
+
+function updateAdmin() {
+  $("adminPanel").hidden = !admin;
+  $("adminButton").textContent = admin ? "ล็อกโหมด Admin" : "เข้าสู่โหมด Admin";
+  $("open2").disabled = !admin || opened[1];
+  $("open3").disabled = !admin || opened[2];
+  $("reveal").disabled = !admin || revealed;
+  // ต้องเปิดเฉลยโดย Admin ก่อน จึงจะไปข้อใหม่ได้
+  $("next").disabled = !admin || !revealed;
+}
+
+function loadQuestion() {
+  opened = [true, false, false];
+  revealed = false;
+  const q = QUESTIONS[index];
+
+  $("counter").textContent = `ข้อที่ ${index + 1} / ${QUESTIONS.length}`;
+  $("hint1").textContent = q.clues[0];
+
+  [2, 3].forEach(n => {
+    $("hint" + n).textContent = "รอ Admin เปิดคำใบ้";
+    $("hint" + n).classList.add("locked");
+    $("badge" + n).textContent = "ปิดอยู่";
+  });
+
+  $("answer").textContent = "ปิดอยู่ — Admin เท่านั้นที่เปิดได้";
+  $("answerCard").classList.remove("open");
+  $("status").textContent = "ทายคำตอบด้วยการพูด แล้วรอ Admin ดำเนินการ";
+  $("progress").style.width = `${index / QUESTIONS.length * 100}%`;
+  $("progressWrap").setAttribute("aria-valuenow", String(index));
+  $("next").textContent = index === QUESTIONS.length - 1
+    ? "จบกิจกรรม →" : "คำใบ้ถัดไป →";
+
+  $("question").style.animation = "none";
+  void $("question").offsetWidth;
+  $("question").style.animation = "";
+  updateAdmin();
+}
+
+function begin() {
+  index = 0;
+  active = true;
+  admin = false;
+  showScreen("game");
+  loadQuestion();
+  window.scrollTo(0, 0);
+  if (!Sound.start()) {
+    $("musicButton").textContent = "อุปกรณ์นี้ไม่รองรับเสียง";
+    $("musicButton").disabled = true;
+  }
+}
+
+function openHint(number) {
+  if (!active || !admin || opened[number - 1]) return;
+  opened[number - 1] = true;
+  $("hint" + number).textContent = QUESTIONS[index].clues[number - 1];
+  $("hint" + number).classList.remove("locked");
+  $("badge" + number).textContent = "เปิดแล้ว";
+  $("status").textContent = `เปิดคำใบ้ที่ ${number} แล้ว — รอผู้ตอบทาย`;
+  Sound.chime();
+  updateAdmin();
+}
+
+function revealAnswer() {
+  if (!active || !admin || revealed) return;
+  revealed = true;
+  $("answer").textContent = QUESTIONS[index].answer;
+  $("answerCard").classList.add("open");
+  $("status").textContent = "เฉลยแล้ว — หยุดรอ Admin กด “คำใบ้ถัดไป”";
+  Sound.chime();
+  updateAdmin();
+}
+
+function nextQuestion() {
+  if (!active || !admin || !revealed) return;
+  index++;
+  if (index >= QUESTIONS.length) {
+    active = false;
+    admin = false;
+    Sound.stop();
+    showScreen("result");
+  } else {
+    loadQuestion();
+  }
+  window.scrollTo(0, 0);
+}
+
+function goHome() {
+  active = false;
+  admin = false;
+  Sound.stop();
+  $("login").close();
+  showScreen("home");
+}
+
+$("start").addEventListener("click", begin);
+$("restart").addEventListener("click", begin);
+$("exitButton").addEventListener("click", goHome);
+$("backHome").addEventListener("click", goHome);
+$("open2").addEventListener("click", () => openHint(2));
+$("open3").addEventListener("click", () => openHint(3));
+$("reveal").addEventListener("click", revealAnswer);
+$("next").addEventListener("click", nextQuestion);
+
+$("musicButton").addEventListener("click", () => {
+  const enabled = Sound.toggle();
+  $("musicButton").textContent = enabled ? "ปิดเสียง" : "เปิดเสียง";
+  $("musicButton").setAttribute("aria-pressed", String(enabled));
+});
+
+$("adminButton").addEventListener("click", () => {
+  if (admin) {
+    admin = false;
+    updateAdmin();
+    return;
+  }
+  $("pin").value = "";
+  $("pinError").textContent = "";
+  $("login").showModal();
+  $("pin").focus();
+});
+
+$("lockButton").addEventListener("click", () => {
+  admin = false;
+  updateAdmin();
+});
+
+$("cancelLogin").addEventListener("click", () => $("login").close());
+
+$("loginForm").addEventListener("submit", event => {
+  event.preventDefault();
+  if ($("pin").value !== ADMIN_PIN) {
+    $("pinError").textContent = "รหัสไม่ถูกต้อง กรุณาลองใหม่";
+    $("pin").select();
+    return;
+  }
+  admin = true;
+  $("pin").value = "";
+  $("login").close();
+  updateAdmin();
+});
+
+// 4. ดาวและประกายเพชรตามไม้วิเศษ
+const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)");
+
+for (let i = 0; i < 65; i++) {
+  const star = document.createElement("span");
+  star.className = "star";
+  star.style.left = Math.random() * 100 + "%";
+  star.style.top = Math.random() * 100 + "%";
+  star.style.animationDelay = -Math.random() * 5 + "s";
+  $("stars").appendChild(star);
+}
+
+let lastTrail = 0;
+document.addEventListener("pointermove", event => {
+  if (!finePointer.matches || event.pointerType === "touch") return;
+  const wand = $("wand");
+  wand.style.display = "block";
+  wand.style.left = event.clientX - 30 + "px";
+  wand.style.top = event.clientY - 8 + "px";
+
+  const now = performance.now();
+  if (reduceMotion.matches || now - lastTrail < 45) return;
+  lastTrail = now;
+  const diamond = document.createElement("span");
+  diamond.className = "diamond";
+  diamond.style.left = event.clientX + Math.random() * 12 - 6 + "px";
+  diamond.style.top = event.clientY + Math.random() * 12 + "px";
+  diamond.setAttribute("aria-hidden", "true");
+  document.body.appendChild(diamond);
+  setTimeout(() => diamond.remove(), 700);
+});
+
+document.documentElement.addEventListener("pointerleave", () => {
+  $("wand").style.display = "none";
+});
+
+// เพลงหยุดเมื่อซ่อนแท็บ เกมยังคงรอ Admin โดยไม่เปลี่ยนข้อ
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) Sound.stop();
+  else if (active) Sound.start();
+});
+window.addEventListener("pagehide", () => Sound.stop());
+</script>
+</body>
+</html>
